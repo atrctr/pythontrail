@@ -12,6 +12,7 @@ Destination = 1000 # you win once it is 0
 BaseSpeed = 20 # miles per day
 
 Weather = 'clear'
+Terrain = 'plains'
 
 ############ FUNCTIONS ######################
 # WEATHER
@@ -23,9 +24,15 @@ def weather(PastWeather):
         woptions = ['sunny','overcast','rain','storm']
         Weather = random.choice(woptions)
     return Weather
+
+# TERRAIN
+def terrain(PastTerrain):
+    toptions = [PastTerrain,'plains','hills','mountains','forest']
+    terrain = random.choice(toptions)
+    return terrain
     
 # SPEED calculation based on weather and terrain
-def SpeedCalc(weather):
+def SpeedCalc(weather,terrain):
     
     # Get the weather-based multiplier
     switcher = {
@@ -34,10 +41,19 @@ def SpeedCalc(weather):
         'rain' : 0.75,
         'storm' : 0.5
     }
-    weathermultiplier = switcher.get(weather, 1)
+    weather = switcher.get(weather, 1)
+    
+    # Get the terrain-based multiplier
+    switcher = {
+        'plains' : 1,
+        'hills' : 0.75,
+        'forest' : 0.8,
+        'mountains' : 0.5
+    }
+    terrain = switcher.get(terrain, 1)
     
     # Actual speed is equal to base speed multiplied by modifiers from weather and terrain
-    speed = BaseSpeed * weathermultiplier
+    speed = BaseSpeed * weather * terrain
     speed = int(speed)
     return speed
 
@@ -49,12 +65,13 @@ print("\n\tPython Trail of Tears\n\nYou win by reaching the Destination,\n",Dest
 # MAIN LOOP
 while Destination > 0:
     Weather = weather(Weather)
-    Speed = SpeedCalc(Weather)
+    Terrain = terrain(Terrain)
+    Speed = SpeedCalc(Weather,Terrain)
     # Show all status information
-    print("\n### DAY",Day,"###########################")
+    print("\n# DAY",Day,"#################################")
     print("Survivors:",People,"\tSupplies:",SupplyDays,"\tMoney:",Money)
 
-    print("Weather:",Weather)
+    print("Weather:",Weather,"\tTerrain:",Terrain)
 
     # If everyone is dead, game over
     if People <= 0:
