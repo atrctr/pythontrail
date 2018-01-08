@@ -2,17 +2,18 @@
 
 import random
 import string
+import events
 
 # Global variables
 Day = 1 
+Destination = 1000 # you win once it is 0
+BaseSpeed = 20 # miles per day
+# Starting conditions
+Weather = 'clear'
+Terrain = 'plains'
 People = 10 # you loose when it hits 0
 SupplyDays = 14 # 1 gets used per day, at 0 one person dies every day
 Money = 100
-Destination = 1000 # you win once it is 0
-BaseSpeed = 20 # miles per day
-
-Weather = 'clear'
-Terrain = 'plains'
 
 ############ FUNCTIONS ######################
 # WEATHER
@@ -57,36 +58,43 @@ def SpeedCalc(weather,terrain):
     speed = int(speed)
     return speed
 
-
 ############ GAME ##########################
 # Intro sequence
 print("\n\tPython Trail of Tears\n\nYou win by reaching the Destination,\n",Destination,"miles away from here. Good luck!")
 
 # MAIN LOOP
 while Destination > 0:
-    Weather = weather(Weather)
-    Terrain = terrain(Terrain)
-    Speed = SpeedCalc(Weather,Terrain)
+
+    Weather = weather(Weather) # Determine today's weather
+    Terrain = terrain(Terrain) # Determine the terrain
+    Speed = SpeedCalc(Weather,Terrain)  # Determine speed based on weather and terrain
+    
+    # SUPPLIES 
+    if SupplyDays > 0: # If you have supplies, consume 1 days worth
+        SupplyDays = SupplyDays - 1 
+    elif SupplyDays <= 0:   # If no supplies, one person DIES.
+        People = People - 1
+        Speed = 0.5 * Speed # Speed is halved if you are starving.
+
+    # Calculate remaining distance
+    Destination = Destination - Speed   
+
     # Show all status information
-    print("\n# DAY",Day,"#################################")
-    print("Survivors:",People,"\tSupplies:",SupplyDays,"\tMoney:",Money)
-
-    print("Weather:",Weather,"\tTerrain:",Terrain)
-
+    print("\n\n### DAY",Day,"###")
+    print("Survivors:",People,"\tSupplies:",SupplyDays,"\tMoney:",Money,"\nWeather:",Weather,"\tTerrain:",Terrain)
+        
     # If everyone is dead, game over
     if People <= 0:
-        print("GAME OVER: All surivors are dead.")
+        print("\nGAME OVER: All surivors are dead.")
         break
-
     # Normal ordinary turn when proceed with the loop
-    if People > 0:
-        Day = Day + 1
-        Destination = Destination - Speed
-        if SupplyDays > 0:
-            SupplyDays = SupplyDays - 1
-        elif SupplyDays <= 0:
-            People = People - 1
-        print("Travelled",Speed,"miles today.",Destination,"miles left.")
+    elif People > 0:
+        theEvent = events.GetEvent() # Fetch the random event
+            
+        print("Travelled",Speed,"miles today -",Destination,"miles left.\n")
+        theEvent.display()
+        
+        Day = Day + 1   # Progress the day counter
 
 # VICTORY - any survivors and Destination reached
 if People > 0:
